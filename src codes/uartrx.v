@@ -15,7 +15,7 @@ module uartrx #(
 
     reg uclk = 0; // UART Clock
     reg state;
-    reg [3:0] counter;
+    reg [2:0] counter;
 
     // UART Clock Generation
     always @(posedge clk) begin
@@ -48,7 +48,7 @@ module uartrx #(
                 START: begin
                     counter <= counter + 1;
                     rxdata <= {rx, rxdata[7:1]};
-                    if(counter == 4'h8) begin
+                    if(counter == 3'h7) begin
                         counter <= 0;
                         done <= 1'b1;
                         state <= IDLE;

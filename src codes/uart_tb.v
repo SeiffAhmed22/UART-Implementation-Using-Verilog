@@ -26,6 +26,7 @@ module uart_tb;
         newd_tb = 0;
         tx_data = 0;
         rx_data = 0;
+        rx_tb = 1;
         #10 rst_tb = 0;
 
         repeat(10) begin
@@ -38,18 +39,24 @@ module uart_tb;
                 tx_data = {tx_dut, tx_data[7:1]};
             end
             @(posedge donetx_dut);
+            if (tx_data !== dintx_tb) begin
+                $display("Error at time = %t! Input data (%d) is not equal to transmitted data (%d)", $time, dintx_tb, tx_data);
+                $stop;
+            end
+            @(negedge DUT.UTX.uclk);
         end
 
+        @(negedge DUT.UTX.uclk);
         newd_tb = 0;
         repeat(10) begin
             rx_tb = 1'b0;
-            @(posedge DUT.UTX.uclk);
+            @(negedge DUT.UTX.uclk);
             repeat(8) begin
-                @(posedge DUT.UTX.uclk);
                 rx_tb = $random;
+                @(negedge DUT.UTX.uclk);
                 rx_data = {rx_tb, rx_data[7:1]};
             end
-            @(posedge donerx_dut);
+            @(negedge DUT.UTX.uclk) rx_data = 0;
         end
         $stop;
     end
