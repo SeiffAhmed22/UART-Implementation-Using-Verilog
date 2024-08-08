@@ -18,7 +18,7 @@ module uarttx #(
 
     reg uclk = 0; // UART Clock
     reg [1:0] state;
-    reg [2:0] counter;
+    reg [3:0] counter;
 
     // UART Clock Generation
     always @(posedge clk) begin
@@ -47,17 +47,16 @@ module uarttx #(
                         state <= IDLE;
                 end
                 TRANSFER: begin
-                    if (counter <= 7) begin
-                        counter <= counter + 1;
-                        tx <= tx_data[counter];
-                        state <= TRANSFER;
-                    end
-                    else begin
+                    tx <= tx_data[counter];
+                    counter <= counter + 1;
+                    if (counter == 4'h8) begin
                         counter <= 0;
                         tx <= 1'b1;
                         donetx <= 1'b1;
                         state <= IDLE;
                     end
+                    else
+                        state <= TRANSFER;
                 end
                 default: state <= IDLE;
             endcase
